@@ -8,37 +8,50 @@ let sayAlert = () => {
   alert('Time is over!');
 };
 
+let fullTime = parseInt(minutes.value)*60 + parseInt(seconds.value);
+
+// Timer function--------------------------------------------------
+
+let timer = () => {
+  let lastMinutes = Math.trunc(fullTime / 60);
+  let lastSeconds = fullTime - lastMinutes * 60;
+
+  if (lastMinutes < 10) {
+    minutes.value = '0' + lastMinutes;
+  } else {
+      minutes.value = lastMinutes;
+    }
+
+  if (lastSeconds < 10) {
+    seconds.value = '0' + lastSeconds;
+  } else {
+      seconds.value = lastSeconds;
+    }
+
+  --fullTime;
+};
+
+// Handlers ---------------------------------------------------------
+
 start.addEventListener('click', () => {
   if (start.textContent === 'start') {
     start.textContent = 'stop';
-
-    let timerTime = parseInt(minutes.value) * 60 + parseInt(seconds.value);
-
-    let timer = setInterval(() => {
-      if (timerTime <= 0) {
-        clearInterval(timer);
-        ring.classList.add('ending');
-        seconds.value = 0;
-        setTimeout(sayAlert, 100);
-      }
-      else {
-        let lastMinutes = Math.trunc(timerTime / 60);
-        let lastSeconds = timerTime - lastMinutes;
-        minutes.value = lastMinutes;
-        seconds.value = lastSeconds;
-      }
-      --timerTime;
-    });
-  } else {
+  }
+  else {
     start.textContent = 'start';
   }
-
-  if (start.textContent === 'stop') {
-    minutes.disabled = true;
-    seconds.disabled = true;
-    settings.disabled = true;
-  }
-
+  let counter = setInterval(() => {
+    if (fullTime <= 0) {
+      clearInterval(counter);
+      setTimeout(sayAlert, 100);
+      seconds.value = '00';
+      ring.classList.add('ending');
+    } else if (start.textContent === 'start') {
+        clearInterval(counter);
+      } else if (start.textContent !== 'start' || fullTime > 0) {
+          timer();
+        }
+  }, 1000);
 });
 
 settings.addEventListener('click', () => {
