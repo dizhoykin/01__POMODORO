@@ -1,66 +1,61 @@
-let start = document.querySelector('.start');
+let startBtn = document.querySelector('.start');
+let settingsBtn = document.querySelector('.settings');
 let minutes = document.querySelector('#minutes');
 let seconds = document.querySelector('#seconds');
-let settings = document.querySelector('.settings');
 let ring = document.querySelector('.ring');
+
+let initialMinutes = minutes.value;
+let initialSeconds = seconds.value;
+let counter;
+
+let fullTime = parseInt(minutes.value)*60 + parseInt(seconds.value);
+
+// Alert function -------------------------------------------------
 
 let sayAlert = () => {
   alert('Time is over!');
 };
 
-let fullTime = parseInt(minutes.value)*60 + parseInt(seconds.value);
+// SettingsBtn Handler ------------------------------------------------
+
+settings.addEventListener('click', () => {
+  start.value = "stop";
+  minutes.disabled = "false";
+  seconds.disabled = "false";
+});
+
+// StartBtn Handler
+
+startBtn.addEventListener("click", () => {
+  switch (startBtn.value) {
+    case: "start":
+      startBtn.value = "stop";
+      timer();
+      return;
+    case: "stop":
+      startBtn.value = "stop";
+      clearInterval(counter);
+      return;
+  }
+});
 
 // Timer function--------------------------------------------------
 
 let timer = () => {
-  let lastMinutes = Math.trunc(fullTime / 60);
-  let lastSeconds = fullTime - lastMinutes * 60;
-
-  if (lastMinutes < 10) {
-    minutes.value = '0' + lastMinutes;
-  } else {
-      minutes.value = lastMinutes;
-    }
-
-  if (lastSeconds < 10) {
-    seconds.value = '0' + lastSeconds;
-  } else {
-      seconds.value = lastSeconds;
-    }
-
-  --fullTime;
-};
-
-// Handlers ---------------------------------------------------------
-
-start.addEventListener('click', () => {
-  if (start.textContent === 'start') {
-    start.textContent = 'stop';
-  }
-  else {
-    start.textContent = 'start';
-  }
   let counter = setInterval(() => {
-    if (fullTime <= 0) {
-      clearInterval(counter);
-      setTimeout(sayAlert, 100);
-      seconds.value = '00';
-      ring.classList.add('ending');
-    } else if (start.textContent === 'start') {
-        clearInterval(counter);
-      } else if (start.textContent !== 'start' || fullTime > 0) {
-          timer();
-        }
-  }, 1000);
-});
+    let lastMinutes = Math.trunc(fullTime / 60);
+    let lastSeconds = fullTime - lastMinutes * 60;
 
-settings.addEventListener('click', () => {
-    if (minutes.disabled === true) {
-      minutes.disabled = false;
-      seconds.disabled = false;
+    minutes.value = lastMinutes < 0 ? '0' + lastMinutes : lastMinutes;
+    seconds.value = lastSeconds < 0 ? '0' + lastSeconds : lastSeconds;
+
+    fullTime--;
+
+    if (fullTime < 0) {
+      ring.classList.add("ending");
+      startBtn.value = "end";
+      clearInterval(counter);
+      setTimeout(() => sayAlert, 100);
     }
-    else {
-      minutes.disabled = true;
-      seconds.disabled = true;
-    }
-});
+  }, 1000);
+};
