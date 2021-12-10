@@ -1,66 +1,92 @@
-let start = document.querySelector('.start');
+let startBtn = document.querySelector('.start');
+let settingsBtn = document.querySelector('.settings');
 let minutes = document.querySelector('#minutes');
 let seconds = document.querySelector('#seconds');
-let settings = document.querySelector('.settings');
 let ring = document.querySelector('.ring');
 
-let sayAlert = () => {
+let counter;
+let initialMinutes = minutes.value;
+let initialSeconds = seconds.value;
+
+// StartBtn Content Setter ----------------------------------------------
+
+const setStartBtnContent = (content) => {
+  startBtn.innerHTML = content;
+};
+
+// Alert Function -------------------------------------------------------
+
+const sayAlert = () => {
   alert('Time is over!');
 };
 
-let fullTime = parseInt(minutes.value)*60 + parseInt(seconds.value);
+// Full Time Getter -----------------------------------------------------
 
-// Timer function--------------------------------------------------
-
-let timer = () => {
-  let lastMinutes = Math.trunc(fullTime / 60);
-  let lastSeconds = fullTime - lastMinutes * 60;
-
-  if (lastMinutes < 10) {
-    minutes.value = '0' + lastMinutes;
-  } else {
-      minutes.value = lastMinutes;
-    }
-
-  if (lastSeconds < 10) {
-    seconds.value = '0' + lastSeconds;
-  } else {
-      seconds.value = lastSeconds;
-    }
-
-  --fullTime;
+const getFullTime = (minutesValue, secondsValue) => {
+  return fullTime = parseInt(minutesValue) * 60 + parseInt(secondsValue);
 };
 
-// Handlers ---------------------------------------------------------
+getFullTime(initialMinutes, initialSeconds);
 
-start.addEventListener('click', () => {
-  if (start.textContent === 'start') {
-    start.textContent = 'stop';
+// Input Status setInterval
+
+const setInputStatus = (status) => {
+  minutes.disabled = !status;
+  seconds.disabled = !status;
+};
+
+// Start Button Handler -------------------------------------------------
+
+startBtn.addEventListener('click', () => {
+  switch (startBtn.innerHTML) {
+    case 'start':
+      setStartBtnContent('stop');
+      timer();
+      break;
+    case 'stop':
+      clearInterval(counter);
+      setStartBtnContent('clear');
+      break;
+    case 'confirm':
+      setStartBtnContent('start');
+      initialMinutes = minutes.value;
+      initialSeconds = seconds.value;
+      getFullTime(initialMinutes, initialSeconds);
+      setInputStatus(false);
+      break;
+    case 'clear':
+      ring.classList.remove('ending');
+      setStartBtnContent('start');
+      minutes.value = initialMinutes;
+      seconds.value = initialSeconds;
+      getFullTime(initialMinutes, initialSeconds);
+      break;
+    default:
+      setStartBtnContent('start');
   }
-  else {
-    start.textContent = 'start';
-  }
-  let counter = setInterval(() => {
-    if (fullTime <= 0) {
+});
+
+// Settings Button Handler --------------------------------------------
+
+settingsBtn.addEventListener('click', () => {
+  setStartBtnContent('confirm');
+  setInputStatus(true);
+});
+
+// Timer Function -------- --------------------------------------------
+
+let timer = () => {
+  counter = setInterval(() => {
+    let lastMinutes = Math.trunc(fullTime / 60);
+    let lastSeconds = fullTime - lastMinutes * 60;
+    minutes.value = lastMinutes < 10 ? '0' + lastMinutes : lastMinutes;
+    seconds.value = lastSeconds < 10 ? '0' + lastSeconds : lastSeconds;
+    fullTime--;
+    if (fullTime < 0) {
+      ring.classList.add('ending');
+      setStartBtnContent('clear');
       clearInterval(counter);
       setTimeout(sayAlert, 100);
-      seconds.value = '00';
-      ring.classList.add('ending');
-    } else if (start.textContent === 'start') {
-        clearInterval(counter);
-      } else if (start.textContent !== 'start' || fullTime > 0) {
-          timer();
-        }
+    }
   }, 1000);
-});
-
-settings.addEventListener('click', () => {
-    if (minutes.disabled === true) {
-      minutes.disabled = false;
-      seconds.disabled = false;
-    }
-    else {
-      minutes.disabled = true;
-      seconds.disabled = true;
-    }
-});
+};
