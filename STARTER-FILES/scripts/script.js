@@ -4,58 +4,89 @@ let minutes = document.querySelector('#minutes');
 let seconds = document.querySelector('#seconds');
 let ring = document.querySelector('.ring');
 
+let counter;
 let initialMinutes = minutes.value;
 let initialSeconds = seconds.value;
-let counter;
 
-let fullTime = parseInt(minutes.value)*60 + parseInt(seconds.value);
+// StartBtn Content Setter ----------------------------------------------
 
-// Alert function -------------------------------------------------
+const setStartBtnContent = (content) => {
+  startBtn.innerHTML = content;
+};
 
-let sayAlert = () => {
+// Alert Function -------------------------------------------------------
+
+const sayAlert = () => {
   alert('Time is over!');
 };
 
-// SettingsBtn Handler ------------------------------------------------
+// Full Time Getter -----------------------------------------------------
 
-settings.addEventListener('click', () => {
-  start.value = "stop";
-  minutes.disabled = "false";
-  seconds.disabled = "false";
-});
+const getFullTime = (minutesValue, secondsValue) => {
+  return fullTime = parseInt(minutesValue) * 60 + parseInt(secondsValue);
+};
 
-// StartBtn Handler
+getFullTime(initialMinutes, initialSeconds);
 
-startBtn.addEventListener("click", () => {
-  switch (startBtn.value) {
-    case: "start":
-      startBtn.value = "stop";
+// Input Status setInterval
+
+const setInputStatus = (status) => {
+  minutes.disabled = !status;
+  seconds.disabled = !status;
+};
+
+// Start Button Handler -------------------------------------------------
+
+startBtn.addEventListener('click', () => {
+  switch (startBtn.innerHTML) {
+    case 'start':
+      setStartBtnContent('stop');
       timer();
-      return;
-    case: "stop":
-      startBtn.value = "stop";
+      break;
+    case 'stop':
       clearInterval(counter);
-      return;
+      setStartBtnContent('clear');
+      break;
+    case 'confirm':
+      setStartBtnContent('start');
+      initialMinutes = minutes.value;
+      initialSeconds = seconds.value;
+      getFullTime(initialMinutes, initialSeconds);
+      setInputStatus(false);
+      break;
+    case 'clear':
+      ring.classList.remove('ending');
+      setStartBtnContent('start');
+      minutes.value = initialMinutes;
+      seconds.value = initialSeconds;
+      getFullTime(initialMinutes, initialSeconds);
+      break;
+    default:
+      setStartBtnContent('start');
   }
 });
 
-// Timer function--------------------------------------------------
+// Settings Button Handler --------------------------------------------
+
+settingsBtn.addEventListener('click', () => {
+  setStartBtnContent('confirm');
+  setInputStatus(true);
+});
+
+// Timer Function -------- --------------------------------------------
 
 let timer = () => {
-  let counter = setInterval(() => {
+  counter = setInterval(() => {
     let lastMinutes = Math.trunc(fullTime / 60);
     let lastSeconds = fullTime - lastMinutes * 60;
-
-    minutes.value = lastMinutes < 0 ? '0' + lastMinutes : lastMinutes;
-    seconds.value = lastSeconds < 0 ? '0' + lastSeconds : lastSeconds;
-
+    minutes.value = lastMinutes < 10 ? '0' + lastMinutes : lastMinutes;
+    seconds.value = lastSeconds < 10 ? '0' + lastSeconds : lastSeconds;
     fullTime--;
-
     if (fullTime < 0) {
-      ring.classList.add("ending");
-      startBtn.value = "end";
+      ring.classList.add('ending');
+      setStartBtnContent('clear');
       clearInterval(counter);
-      setTimeout(() => sayAlert, 100);
+      setTimeout(sayAlert, 100);
     }
   }, 1000);
 };
